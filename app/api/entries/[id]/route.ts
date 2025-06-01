@@ -1,29 +1,22 @@
-'use client'
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/firebase-admin';
 
 export async function DELETE(
-  _request: NextRequest, 
-  { params }: { params: { id: string } }
+  req: Request,
+  context: { params: { id: string } }
 ) {
+  const { id } = context.params;
+
   try {
-   
-    const savedEntries = localStorage.getItem('entries');
-    if (!savedEntries) {
-      return NextResponse.json({ success: false, error: 'No entries found' }, { status: 404 });
-    }
+    const entryRef = db.collection('entries').doc(id);
+    const docSnapshot = await entryRef.get();
 
-    
-    const entries = JSON.parse(savedEntries);
-    const updatedEntries = entries.filter((entry: { id: string }) => entry.id !== params.id);
-
-   
-    if (entries.length === updatedEntries.length) {
+    if (!docSnapshot.exists) {
       return NextResponse.json({ success: false, error: 'Entry not found' }, { status: 404 });
     }
 
-    
-    localStorage.setItem('entries', JSON.stringify(updatedEntries));
+    await entryRef.delete();
 
     return NextResponse.json({ success: true });
   } catch (error) {
