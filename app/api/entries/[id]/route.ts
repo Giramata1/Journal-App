@@ -1,14 +1,15 @@
+
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase-admin';
+import type { NextRequest } from 'next/server';
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params; 
 
   try {
-    const entryRef = db.collection('entries').doc(id);
+    const entryRef = (await import('@/lib/firebase-admin')).db.collection('entries').doc(id);
     const docSnapshot = await entryRef.get();
 
     if (!docSnapshot.exists) {
