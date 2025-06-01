@@ -1,12 +1,11 @@
-
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 
 export async function DELETE(
   req: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = context.params;
+  const { id } = params;
 
   try {
     const entryRef = db.collection('entries').doc(id);
